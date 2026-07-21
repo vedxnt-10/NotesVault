@@ -117,14 +117,17 @@ export default function ManageSubject() {
                       onSuccess={fetchData}
                     />
                   ))}
-                  <AdminUploadZone 
-                    subjectId={subject.id}
-                    subjectCode={subject.code || `SUBJ${subject.id.slice(0,4)}`}
-                    semester={subject.semester}
-                    docType="note"
-                    unitNumber={unit}
-                    onSuccess={fetchData}
-                  />
+                  {[1, 2].map(i => (
+                    <AdminUploadZone 
+                      key={`empty-note-${unit}-${i}`}
+                      subjectId={subject.id}
+                      subjectCode={subject.code || `SUBJ${subject.id.slice(0,4)}`}
+                      semester={subject.semester}
+                      docType="note"
+                      unitNumber={unit}
+                      onSuccess={fetchData}
+                    />
+                  ))}
                 </div>
               );
             })}

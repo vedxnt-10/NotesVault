@@ -1,0 +1,48 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400;1,600;1,700&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --bg-body: 248 250 252;
+    --bg-card: 255 255 255;
+    --bg-accent: 247 247 245;
+    --bg-inverse: 0 0 0;
+    --text-main: 15 23 42;
+    --text-muted: 100 116 139;
+    --text-inverse: 255 255 255;
+    --border-color: 226 232 240;
+    
+    /* Pastel Colors for Bento UI */
+    --pastel-blue: 224 242 254;   /* sky-100 */
+    --pastel-yellow: 242 235 220; /* sand/beige */
+    --pastel-pink: 235 212 201;   /* dusty rose/clay */
+    --pastel-orange: 214 226 211; /* muted sage */
+    --pastel-green: 220 252 231;  /* green-100 */
+    --pastel-purple: 243 232 255; /* purple-100 */
+  }
+
+  .dark {
+    --bg-body: 9 9 11;
+    --bg-card: 24 24 27;
+    --bg-accent: 39 39 42;
+    --bg-inverse: 255 255 255;
+    --text-main: 250 250 250;
+    --text-inverse: 0 0 0;
+    --border-color: 39 39 42;
+
+    /* Pastel Colors for Dark Mode (Keep them bright and colorful!) */
+    --pastel-blue: 186 230 253;   /* sky-200 */
+    --pastel-yellow: 232 225 210; /* light sand */
+    --pastel-pink: 225 202 191;   /* light clay */
+    --pastel-orange: 204 216 201; /* light sage */
+    --pastel-green: 187 247 208;  /* green-200 */
+    --pastel-purple: 233 213 255; /* purple-200 */
+  }
+
+  body {
+    @apply bg-body text-text-main font-sans antialiased transition-colors duration-300;
+  }
+}

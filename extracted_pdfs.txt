@@ -1,0 +1,1015 @@
+--- doc1_PRD.pdf ---
+Product Requirement Document — AIDS Notes Portal
+AIDS Dept. Notes Portal — BMS College of Engineering
+Confidential — Internal Project Spec
+Page 1
+DOC 1  —  Product Requirement
+Document (PRD)
+AIDS Department Notes & PYQ Portal — BMS College of Engineering
+Version 1.0  |  Owner: Department Faculty (Admin)  |  Status: Ready for Build
+1. Purpose & Background
+The Artificial Intelligence and Data Science (AIDS) Department at BMS College of Engineering needs a
+single, always-available web portal where students can read and download semester-wise study notes
+and previous year question papers (PYQs). Today this material is scattered across WhatsApp groups,
+Google Drive links, and photocopies. The portal centralizes this into one clean, fast, mobile-friendly
+website with no login friction for students, while giving the department (a single faculty admin) full control to
+add subjects and upload content from a hidden, password-protected panel.
+2. Goals
+●
+Give students instant, login-free access to notes and PYQs, organised by semester → subject → unit.
+●
+Give the admin (faculty) a simple private panel to add subjects and upload/replace/delete PDFs without
+touching code.
+●
+Keep the interface minimal, clean, and fast — white background with blue accents, readable on mobile
+and desktop.
+●
+Ensure the site stays fast and error-free even when hundreds of students access it at the same time
+(e.g. night before an exam).
+●
+Ship an MVP that is simple to build, cheap to host, and easy for one person (the admin) to maintain
+long-term.
+3. Non-Goals (Out of Scope for v1)
+●
+No student accounts, sign-up, sign-in, or personalization (bookmarks, history, profiles).
+●
+No commenting, ratings, discussion forums, or social features.
+●
+No in-browser PDF editing or annotation — only view and download.
+●
+No native mobile app — a responsive website only.
+●
+No multi-department / multi-college support in v1 (structure should allow it later, see TRD, but it is not
+built now).
+●
+No payment, ads, or monetisation of any kind.
+4. Users & Personas
+Persona
+Description
+Key Needs
+Student (primary)
+AIDS dept. student, semester 3–8, visiting on phone
+or laptop, usually right before class/exam.
+Find the right subject fast, open/download a
+PDF in 2–3 taps, no login, works on slow
+college Wi-Fi.
+
+Product Requirement Document — AIDS Notes Portal
+AIDS Dept. Notes Portal — BMS College of Engineering
+Confidential — Internal Project Spec
+Page 2
+Persona
+Description
+Key Needs
+Admin (secondary)
+Single faculty member managing content, not a
+developer, using a laptop.
+Add a new subject in seconds, upload/replace
+a PDF for a specific unit or PYQ list, no risk of
+students finding the panel.
+5. Functional Requirements
+5.1 Student-facing site (public, no login)
+1
+Landing / Home: Student opens the webapp and immediately sees a semester selector — tiles/cards
+for Semester 3 through Semester 8 (6 total). No login screen, no splash ad.
+2
+Semester Dashboard: After choosing a semester, the student sees a grid/list of subject cards for that
+semester only (subjects are whatever the admin has added — count varies per semester).
+3
+Subject Page: Choosing a subject opens a page with two clearly separated sections: (a) Notes,
+broken into Unit 1 through Unit 5 (fixed structure, one expandable block per unit, each holding one or
+more PDFs), and (b) PYQs, a single flat list of previous year question paper PDFs for that subject,
+sorted newest upload first.
+4
+View / Download: Each PDF row has two actions only — View (opens PDF in an in-browser viewer /
+new tab) and Download (saves the file). No edit, no delete, visible to students.
+5
+Empty states: If a unit or the PYQ section has no PDFs yet, show a friendly 'Not uploaded yet, check
+back soon' message instead of a blank/broken section.
+6
+Navigation: Persistent breadcrumb / back path: Home › Semester X › Subject Y, so a student can jump
+back a level in one tap.
+7
+Responsiveness: Full functionality on mobile (majority of traffic expected), tablet, and desktop widths.
+5.2 Admin panel (hidden, password-protected)
+1
+Access: The admin panel lives at a secret, unpublished URL path (e.g. /portal-manage, exact
+value configurable) that is not linked from anywhere on the public site and is not discoverable via
+navigation, sitemap, or search-engine indexing.
+2
+Authentication: A single password gate (no username, no visible 'login' branding on the public site).
+Correct password issues a short-lived session; wrong password shows a generic error with rate-limiting
+to slow brute-force attempts.
+3
+Add Subject: Admin can add a new subject to a chosen semester by entering a subject name/code.
+The 5 unit slots and the PYQ slot are created automatically — admin does not manually create these.
+4
+Upload Notes: For any subject, admin can upload one or more PDF files into any of the 5 unit slots.
+5
+Upload PYQs: Admin can upload one or more PDF files into that subject's PYQ list.
+6
+Manage content: Admin can rename a subject, delete a subject (with confirmation), delete/replace an
+individual PDF, and reorder is not required (newest-first is automatic).
+7
+Feedback: Every upload/delete action shows a clear success or error toast (e.g. file too large, wrong
+file type).
+5.3 File handling rules
+●
+Only .pdf files are accepted for upload; any other type is rejected client-side and server-side with a
+clear message.
+●
+A sensible per-file size cap (recommended 25–50 MB) is enforced, with the exact limit surfaced in the
+upload UI.
+
+Product Requirement Document — AIDS Notes Portal
+AIDS Dept. Notes Portal — BMS College of Engineering
+Confidential — Internal Project Spec
+Page 3
+●
+Uploaded file names are sanitised (no spaces/special characters causing broken URLs) but the original
+display name shown to students can remain human-readable.
+6. Non-Functional Requirements
+Category
+Requirement
+Performance
+Home and dashboard pages should visibly render in
+under ~1.5s on a typical 4G connection; PDF list pages
+under ~2s.
+Scalability
+Must comfortably support hundreds of concurrent
+students (e.g. 300–500 simultaneous users the night
+before an exam) without errors or major slowdown, using
+a CDN-backed static frontend and a managed backend
+(Supabase) that scales independently of the frontend.
+Availability
+Target 99.5%+ uptime; static frontend hosting and
+managed backend both have strong SLA track records.
+Security
+Admin route is unauthenticated-invisible to the public; all
+uploads are server-validated (type + size); Supabase Row
+Level Security (RLS) enforces that only the admin session
+can write/delete, while students get read-only public
+access to metadata and files.
+Usability
+Zero learning curve for students — 3 taps max from home
+to any PDF (semester → subject → unit/PYQ → open).
+Accessibility
+Sufficient colour contrast (blue-on-white meets WCAG
+AA), readable font sizes, keyboard-navigable admin
+forms.
+Maintainability
+Admin never touches code or the database directly; all
+content changes happen through the admin UI.
+Portability
+Codebase and data model should allow adding a 2nd
+department or extra semesters later without a rewrite (see
+TRD §2).
+Cost
+Should run on free/low tier of Supabase + a free static
+host (e.g. Vercel/Netlify) for expected student traffic
+volumes.
+7. Success Metrics
+●
+Page loads with zero errors during peak pre-exam traffic (monitored via Supabase logs / hosting
+analytics).
+●
+Admin can publish a new subject with its first PDF in under 2 minutes without help.
+●
+Reduction in “where do I find notes for X” questions in student WhatsApp groups (qualitative,
+admin-observed).
+8. Assumptions & Constraints
+●
+Semesters are fixed at 3–8 (6 semesters); Semesters 1–2 are out of scope (common first-year, not
+department-specific).
+
+Product Requirement Document — AIDS Notes Portal
+AIDS Dept. Notes Portal — BMS College of Engineering
+Confidential — Internal Project Spec
+Page 4
+●
+Exactly 5 units per subject is a fixed structure for notes; PYQs are a single flat list per subject (no
+per-year sub-folders, per the confirmed answer).
+●
+Only one admin account exists; there is no multi-admin or role hierarchy in v1.
+●
+Students never authenticate; all read access is public by design.
+●
+Content is entirely PDF; no video, slides, or other formats in v1.
+========================================
+--- doc2_TRD.pdf ---
+Technical Requirement Document — AIDS Notes Portal
+AIDS Dept. Notes Portal — BMS College of Engineering
+Confidential — Internal Project Spec
+Page 1
+DOC 2  —  Technical Requirement
+Document (TRD)
+Stack, Architecture, APIs, Constraints
+Version 1.0  |  Companion to PRD (Doc 1)  |  Status: Ready for Build
+1. Tech Stack
+Layer
+Choice
+Notes
+Frontend
+React (Vite) + Tailwind CSS
+SPA with client-side routing.
+Open-source UI libs allowed for
+polish: shadcn/ui or Headless UI for
+accessible primitives, lucide-react for
+icons, react-pdf or the browser's
+native PDF viewer (iframe/object) for
+in-app preview.
+Backend
+Supabase (managed Postgres +
+Auto REST/RPC + Storage)
+No custom server needed for v1. All
+reads/writes go through the
+Supabase JS client using
+RLS-protected policies.
+Database
+Supabase Postgres
+Relational schema, see Doc 5
+(Backend Schema).
+File Storage
+Supabase Storage (1 bucket for
+PDFs)
+Public-read bucket for notes/PYQs;
+signed/service-role writes only from
+the admin panel.
+Admin Auth
+Single shared password, not
+Supabase Auth user table
+Password stored as a hashed secret
+checked via a Supabase Edge
+Function; on success, issue a
+short-lived signed session token
+(httpOnly cookie or JWT in
+localStorage) that unlocks
+write-capable API calls.
+Hosting (frontend)
+Vercel or Netlify (either works)
+Static build + global CDN, auto
+HTTPS, free tier sufficient for
+expected load.
+Hosting (backend)
+Supabase Cloud
+Managed, scales independently of
+frontend; free/pro tier depending on
+storage volume.
+2. High-Level Architecture
+The system is a static, CDN-hosted React SPA that talks directly to Supabase's auto-generated
+REST/RPC API and Storage API from the browser. There is no custom backend server to run or scale —
+Supabase (a managed Postgres + object storage + edge function platform) absorbs that responsibility,
+which is what makes the “hundreds of concurrent students” requirement cheap to satisfy: the frontend is
+served from a CDN edge (near-infinite horizontal scale) and the backend is a managed multi-tenant
+Postgres cluster with connection pooling (PgBouncer) built in.
+
+Technical Requirement Document — AIDS Notes Portal
+AIDS Dept. Notes Portal — BMS College of Engineering
+Confidential — Internal Project Spec
+Page 2
+[ Student Browser ]        [ Admin Browser ]
+        |                          |
+   (public reads)          (password + write ops)
+        |                          |
+        v                          v
+  +-----------------------------------------+
+  |     React SPA (Vite) on CDN (Vercel)     |
+  |   Tailwind CSS UI, client-side routing    |
+  +-----------------------------------------+
+        |  Supabase JS client (anon key)
+        v
+  +-----------------------------------------+
+  |               SUPABASE                   |
+  |  - Postgres (semesters/subjects/documents)|
+  |  - Row Level Security policies            |
+  |  - Storage bucket: pdfs/ (public-read)     |
+  |  - Edge Function: admin-auth               |
+  +-----------------------------------------+
+3. Routing Structure (React Router)
+Route
+Page
+Access
+/
+Home — semester selector (3–8)
+Public
+/semester/:semNumber
+Semester dashboard — subject
+cards
+Public
+/semester/:semNumber/subject/:subjectId
+Subject page — Units 1–5 + PYQs
+Public
+/
+Admin login (password gate)
+Public form, protected action
+//dashboard
+Admin dashboard — manage
+semesters/subjects/files
+Session-protected
+The exact secret path segment is an environment variable (e.g. VITE_ADMIN_PATH), not hard-coded, so
+it can be rotated without a redeploy of logic. This route is excluded from any sitemap and given a noindex
+meta tag as defense-in-depth.
+4. Admin Authentication Flow
+1
+Admin navigates to the secret path and enters the single shared password in a plain form (no
+username field, no 'Forgot password' link that would hint at accounts).
+2
+Password is sent to a Supabase Edge Function (verify-admin) which compares it against a hashed
+secret stored in Supabase project secrets (never in frontend code).
+3
+On success, the function returns a short-lived signed JWT (e.g. 12-hour expiry) that the frontend stores
+in memory + httpOnly-style cookie via the function response.
+4
+All subsequent write calls (insert subject, upload file, delete file) attach this token; Postgres RLS
+policies check the token's custom claim before allowing writes.
+5
+On failure, return a generic 'Incorrect password' message; the Edge Function applies basic rate-limiting
+(e.g. exponential backoff per IP) to blunt brute-force attempts.
+5. Core Data Operations (Supabase JS)
+
+Technical Requirement Document — AIDS Notes Portal
+AIDS Dept. Notes Portal — BMS College of Engineering
+Confidential — Internal Project Spec
+Page 3
+5.1 Student reads (public, anon key, read-only via RLS)
+// Get subjects for a semester
+const { data } = await supabase
+  .from('subjects')
+  .select('id, name, code')
+  .eq('semester', 5)
+  .order('name');
+// Get documents for a subject, grouped by unit/pyq client-side
+const { data } = await supabase
+  .from('documents')
+  .select('id, title, file_path, doc_type, unit_number, created_at')
+  .eq('subject_id', subjectId)
+  .order('created_at', { ascending: false });
+// Public URL for viewing/downloading a PDF
+const { data } = supabase.storage.from('pdfs').getPublicUrl(filePath);
+5.2 Admin writes (requires valid admin session token)
+// Upload a PDF to storage
+await supabase.storage.from('pdfs').upload(
+  `sem5/${subjectCode}/unit1/${fileName}`, file,
+  { upsert: false, contentType: 'application/pdf' }
+);
+// Insert the document row referencing the storage path
+await supabase.from('documents').insert({
+  subject_id: subjectId, doc_type: 'note', unit_number: 1,
+  title: 'Unit 1 - Introduction', file_path: 'sem5/AI301/unit1/....pdf'
+});
+6. Security Requirements
+●
+Row Level Security enabled on every table; anon (public) role gets SELECT only.
+●
+INSERT/UPDATE/DELETE on subjects and documents restricted to requests carrying a valid
+admin JWT claim, verified inside the RLS policy.
+●
+Storage bucket pdfs: public read policy for GET; write/delete policy requires the same admin claim.
+●
+Admin secret path + password never appear in client-visible source maps or public repo — stored as
+environment variables / Supabase secrets.
+●
+HTTPS enforced everywhere (default on Vercel/Netlify + Supabase).
+●
+File-type validation both client-side (input accept='.pdf') and server-side (check MIME/signature before
+accepting upload).
+7. Scalability & Performance Plan
+Concern
+Approach
+Concurrent student traffic (100s at once)
+Frontend is static + CDN-cached (Vercel/Netlify edge
+network handles thousands of concurrent connections
+trivially).
+
+Technical Requirement Document — AIDS Notes Portal
+AIDS Dept. Notes Portal — BMS College of Engineering
+Confidential — Internal Project Spec
+Page 4
+Concern
+Approach
+Database read load
+Supabase Postgres connection pooling (PgBouncer) +
+simple, indexed queries (see Doc 5 for indexes) keep
+read latency low even under burst load.
+PDF delivery load
+PDFs are served directly from Supabase Storage (backed
+by S3-compatible object storage + CDN), not proxied
+through the app server, so download bandwidth scales
+independently.
+Repeated identical queries
+Client-side caching of semester/subject lists (React Query
+or SWR) avoids refetching on every navigation within a
+session.
+Large PDF uploads (admin only)
+Admin-only, low-frequency path; not a scaling concern,
+but enforce the size cap from the PRD to avoid storage
+bloat.
+8. Environment Variables
+VITE_SUPABASE_URL=...
+VITE_SUPABASE_ANON_KEY=...
+VITE_ADMIN_PATH=portal-manage-x7k
+SUPABASE_ADMIN_PASSWORD_HASH=...      # set as a Supabase Edge Function secret, not in fro
+ntend
+SUPABASE_JWT_SIGNING_SECRET=...        # Edge Function secret
+9. Future Extensibility (not built now, schema should not
+block it)
+●
+Additional departments: schema already scopes subjects by a department field (see Doc 5), so a 2nd
+department can be added without restructuring.
+●
+Semesters 1–2 or a 7th/8th expansion: semester is a plain integer column, not hard-coded enum, so
+range changes are a config/UI change only.
+●
+Optional future search: Postgres full-text search (tsvector) can be added on documents.title later
+without schema rewrite.
+========================================
+--- doc3_App_Flow.pdf ---
+App Flow — Screen & User Flow Map — AIDS Notes Portal
+AIDS Dept. Notes Portal — BMS College of Engineering
+Confidential — Internal Project Spec
+Page 1
+DOC 3  —  App Flow — Screen & User
+Flow Map
+Every Screen, Every Path (Student + Admin)
+Version 1.0  |  Companion to PRD & TRD (Docs 1–2)
+1. Student Flow Overview
+HOME (semester picker)
+   ■  tap a semester card (3-8)
+   ▼
+SEMESTER DASHBOARD (subject cards for that semester)
+   ■  tap a subject card
+   ▼
+SUBJECT PAGE
+   ■■ NOTES section
+   ■    ■■ Unit 1 (expand -> list of PDFs -> View / Download)
+   ■    ■■ Unit 2
+   ■    ■■ Unit 3
+   ■    ■■ Unit 4
+   ■    ■■ Unit 5
+   ■■ PYQ section (flat list, newest first -> View / Download)
+2. Screen-by-Screen Breakdown (Student)
+Screen 1 — Home
+●
+Purpose: Entry point; let the student pick their semester in one glance.
+●
+Content: Department name + college name header (“AIDS Dept. — BMS College of Engineering”),
+short subtitle (“Notes & PYQs”), a row/grid of 6 cards labelled Semester 3 through Semester 8.
+●
+Actions: Tap a semester card → go to Semester Dashboard.
+●
+Edge cases: None — this screen has no data dependency other than the fixed semester range.
+Screen 2 — Semester Dashboard
+●
+Purpose: Show all subjects that exist for the chosen semester.
+●
+Content: Breadcrumb (Home › Semester X), page title “Semester X — Subjects”, a responsive grid of
+subject cards (name + subject code).
+●
+Actions: Tap a subject card → go to Subject Page. Tap breadcrumb ‘Home’ → back to Home.
+●
+Edge cases: If admin hasn’t added any subject yet for that semester, show an empty state: “Subjects
+for this semester will appear here soon.”
+Screen 3 — Subject Page
+●
+Purpose: The core content screen — all notes and PYQs for one subject.
+●
+Content: Breadcrumb (Home › Semester X › Subject Y), subject title, two tabs or stacked sections:
+Notes (5 collapsible unit blocks, each listing its PDFs with a small PDF icon, file name, upload date,
+View button, Download button) and PYQs (flat list, same row layout, newest at top).
+
+App Flow — Screen & User Flow Map — AIDS Notes Portal
+AIDS Dept. Notes Portal — BMS College of Engineering
+Confidential — Internal Project Spec
+Page 2
+●
+Actions: Tap View → opens PDF in new tab/in-app viewer. Tap Download → triggers file download.
+Tap a unit header → expand/collapse that unit’s file list.
+●
+Edge cases: A unit with zero files shows “Not uploaded yet.” PYQ list with zero files shows the same
+style of message. Very long subject/file names truncate with ellipsis + full name on hover/tap.
+3. Admin Flow Overview
+SECRET ADMIN URL
+   ■  enters password
+   ▼
+ADMIN DASHBOARD
+   ■■ Add Subject (pick semester, enter name/code) -> creates 5 unit slots + PYQ slot
+   ■■ Select existing Subject -> Manage Subject screen
+   ■        ■■ Upload PDF into Unit 1-5
+   ■        ■■ Upload PDF into PYQ list
+   ■        ■■ Delete / replace a PDF
+   ■        ■■ Rename / delete the subject
+   ■■ Logout
+4. Screen-by-Screen Breakdown (Admin)
+Screen A — Admin Login
+●
+Purpose: Gate the entire admin area behind a single shared password.
+●
+Content: Plain, unbranded form — a heading “Admin Access”, one password field, one submit button.
+No mention of the public site's identity beyond a small logo, to avoid revealing this is departmental.
+●
+Actions: Submit correct password → Admin Dashboard. Wrong password → inline error, no hint about
+what was wrong.
+Screen B — Admin Dashboard
+●
+Purpose: Home base for content management.
+●
+Content: Semester tabs/filter (3–8), list of subjects under the selected semester, a prominent “+ Add
+Subject” button.
+●
+Actions: Click a subject → Manage Subject screen. Click “+ Add Subject” → inline form (semester is
+pre-filled from the active tab, enter subject name + code, submit creates the subject with 5 empty unit
+slots + empty PYQ list automatically).
+Screen C — Manage Subject
+●
+Purpose: Upload and manage the actual PDFs for one subject.
+●
+Content: Subject name/code header with Rename and Delete-subject controls, 5 unit upload blocks
+(each: current file list + drag-and-drop / file-picker upload zone accepting only .pdf), one PYQ upload
+block laid out the same way.
+●
+Actions: Upload PDF (validates type + size, shows progress, appends to list on success). Delete a
+specific PDF (confirmation prompt). Replace = delete + upload new.
+●
+Feedback: Toast notifications for every success/error (e.g. “Unit 3 notes uploaded”, “File exceeds 40
+MB limit”, “Only PDF files are allowed”).
+5. Navigation Map (all routes)
+
+App Flow — Screen & User Flow Map — AIDS Notes Portal
+AIDS Dept. Notes Portal — BMS College of Engineering
+Confidential — Internal Project Spec
+Page 3
+Path
+Screen
+Reachable from
+/
+Home
+Entry point / breadcrumb from any screen
+/semester/3 .. /semester/8
+Semester Dashboard
+Home (tap semester card)
+/semester/:sem/subject/:id
+Subject Page
+Semester Dashboard (tap subject card)
+/
+Admin Login
+Only known to admin, not linked publicly
+//dashboard
+Admin Dashboard
+After successful login
+//dashboard/subject/:id
+Manage Subject
+Admin Dashboard (click a subject)
+========================================
+--- doc4_UIUX_Design.pdf ---
+UI/UX Design Doc — AIDS Notes Portal
+AIDS Dept. Notes Portal — BMS College of Engineering
+Confidential — Internal Project Spec
+Page 1
+DOC 4  —  UI/UX Design Doc
+Colours, Type, Look & Feel
+Version 1.0  |  Companion to App Flow (Doc 3)
+1. Design Principles
+●
+Minimal & clean: generous white space, no clutter, no decorative imagery competing with content.
+●
+Fast to scan: a student should identify the right subject/unit within 2–3 seconds of landing on a screen.
+●
+Calm, academic tone: white-dominant palette with a single confident blue accent — not playful, not
+corporate-cold.
+●
+Consistent, predictable patterns: the same card style, button style, and list-row style repeat
+everywhere so nothing feels new twice.
+2. Colour Palette
+Name
+Hex
+Usage
+Primary Blue
+#2F6FED
+Buttons, links, active states, header rule, icons
+Deep Blue (text/headings)
+#1E4FBB
+Headings, hover states
+Pale Blue
+#EAF1FE
+Card hover backgrounds, subtle section fills, table stripes
+White
+#FFFFFF
+Primary background — dominant colour of the app
+Off-black text
+#1A1D23
+Primary body/heading text
+Grey (secondary text)
+#6B7280
+Meta text, dates, helper copy
+Border grey-blue
+#D8DEEB
+Card borders, dividers
+Rule of thumb: at least 80% of any screen's visible area should be white/near-white. Blue is used with
+intent — primary actions, active/selected states, and the top accent rule — never as large background fills.
+3. Typography
+Role
+Font
+Size (desktop)
+Weight
+Page title
+Inter / system-ui sans-serif
+24–28px
+700 (Bold)
+Section heading (Notes /
+PYQs)
+Inter
+18–20px
+600 (Semibold)
+Card title
+(subject/semester)
+Inter
+15–16px
+600 (Semibold)
+Body / list text
+Inter
+14–15px
+400 (Regular)
+Meta text (dates, file size)
+Inter
+12–13px
+400, grey colour
+Use Tailwind's default font stack (font-sans → Inter/system-ui) — no custom font loading needed, keeps
+pages fast.
+
+UI/UX Design Doc — AIDS Notes Portal
+AIDS Dept. Notes Portal — BMS College of Engineering
+Confidential — Internal Project Spec
+Page 2
+4. Core Components
+Component
+Description
+SemesterCard
+White card, 1px pale-blue border, rounded-xl corners,
+semester number large + centered, subtle blue-tinted
+hover/active state, shadow-sm on hover.
+SubjectCard
+White card, subject name (bold) + subject code (grey,
+smaller), chevron icon indicating it's tappable, same
+border/radius language as SemesterCard.
+UnitAccordion
+Collapsible block: header row = 'Unit N' + file count badge
++ chevron; expands to reveal PDFRow list; only header
+has a bottom border, expanded content sits on plain
+white.
+PDFRow
+Icon (PDF glyph, blue) + file title + upload date (grey,
+small) + two right-aligned buttons: 'View' (outline blue
+button) and 'Download' (filled blue button).
+Breadcrumb
+Home › Semester X › Subject Y, grey text with blue on the
+current/clickable segments, chevron separators.
+EmptyState
+Centered icon (light blue, muted) + one line of grey helper
+text, used for empty units, empty PYQ lists, and empty
+semesters.
+AdminUploadZone
+Dashed blue-bordered drop zone with 'Drag & drop a PDF
+or click to browse' text; shows inline progress bar during
+upload; converts to a PDFRow entry with a delete (trash)
+icon once uploaded.
+Toast
+Small rounded notification, bottom-right, green-blue for
+success / red-outline for error, auto-dismiss ~4s.
+Button (primary)
+Solid Primary Blue background, white text, rounded-lg,
+medium padding, subtle darken on hover (Deep Blue).
+Button (secondary/outline)
+White background, 1.5px Primary Blue border, blue text,
+fills pale blue on hover.
+5. Layout & Spacing
+●
+Base spacing unit: 4px (Tailwind default scale) — use multiples (p-4, gap-6, etc.) for consistent rhythm.
+●
+Max content width ~1100–1200px on desktop, centered, with comfortable side padding (16–24px) on
+mobile.
+●
+Card grids: 2 columns on mobile, 3–4 on tablet, 4–6 on desktop for semester/subject cards — CSS grid
+with auto-fit / minmax via Tailwind's grid utilities.
+●
+Consistent 12–16px vertical gap between list rows (PDFRow) for comfortable tap targets (min 44px
+height per row on mobile).
+6. Responsive Behaviour
+
+UI/UX Design Doc — AIDS Notes Portal
+AIDS Dept. Notes Portal — BMS College of Engineering
+Confidential — Internal Project Spec
+Page 3
+Breakpoint
+Behaviour
+< 640px (mobile)
+Single/2-column card grids, stacked Notes/PYQ sections
+(no side-by-side tabs), sticky top header with breadcrumb
+collapses to a back arrow.
+640–1024px (tablet)
+3-column card grids, breadcrumb shown in full.
+> 1024px (desktop)
+4–6 column card grids, optional two-column layout for
+Notes vs PYQ side-by-side if content allows.
+7. Iconography & Imagery
+●
+Use a single consistent icon set throughout (e.g. Lucide/Feather-style outline icons) — PDF/document
+icon, chevron, upload cloud, trash, download arrow, eye (view).
+●
+No stock photography or decorative illustration on core screens — keep focus on content. A small
+department/college wordmark or simple monogram in the header is the only branding element.
+●
+Icons follow the same blue-on-white language: default state grey/blue-muted, active/hover state
+Primary Blue.
+8. Tone of Voice (UI copy)
+●
+Short, plain, student-friendly labels: “View”, “Download”, “Not uploaded yet” — no jargon.
+●
+Admin-side copy can be slightly more descriptive since the audience is a single trained user, but still
+concise.
+9. Accessibility Notes
+●
+Primary Blue (#2F6FED) on white background exceeds WCAG AA contrast for normal text; verified
+before final theme lock.
+●
+All interactive elements (cards, buttons, accordion headers) are real <button>/<a> elements with
+visible focus rings (blue outline) for keyboard navigation.
+●
+File view/download actions have descriptive aria-labels (e.g. “Download Unit 2 notes PDF”) rather than
+generic “click here”.
+========================================
+--- doc5_Backend_Schema.pdf ---
+Backend Schema — AIDS Notes Portal
+AIDS Dept. Notes Portal — BMS College of Engineering
+Confidential — Internal Project Spec
+Page 1
+DOC 5  —  Backend Schema
+Tables, Relations, Storage & API Calls (Supabase)
+Version 1.0  |  Companion to TRD (Doc 2)
+1. Entity Overview
+Four tables cover the entire data model: departments (future-proofing, only one row used in v1), subjects
+(scoped to a semester), documents (a note or a PYQ file, scoped to a subject), and admin_sessions
+(optional — only needed if session state is tracked server-side rather than via stateless JWT). PDF
+binaries live in Supabase Storage; the database only stores metadata + storage paths.
+departments (1) ----< subjects (many) ----< documents (many)
+                                                 |
+                                        file_path points into
+                                     Supabase Storage bucket 'pdfs'
+2. Table: departments
+Column
+Type
+Notes
+id
+uuid, PK, default gen_random_uuid()
+name
+text, not null
+e.g. 'Artificial Intelligence and Data
+Science'
+short_code
+text, unique
+e.g. 'AIDS'
+college_name
+text, not null
+e.g. 'BMS College of Engineering'
+created_at
+timestamptz, default now()
+v1 has exactly one row here. Present so a 2nd department can be added later without a schema change
+(see TRD §9).
+3. Table: subjects
+Column
+Type
+Notes
+id
+uuid, PK, default gen_random_uuid()
+department_id
+uuid, FK → departments.id
+not null
+semester
+smallint, not null
+constrained to 3–8 via CHECK
+(semester BETWEEN 3 AND 8)
+name
+text, not null
+e.g. 'Machine Learning'
+code
+text
+e.g. 'AI301', optional but
+recommended
+created_at
+timestamptz, default now()
+updated_at
+timestamptz, default now()
+touched on rename
+
+Backend Schema — AIDS Notes Portal
+AIDS Dept. Notes Portal — BMS College of Engineering
+Confidential — Internal Project Spec
+Page 2
+Index: CREATE INDEX idx_subjects_semester ON subjects(semester); — speeds up the
+Semester Dashboard query.
+4. Table: documents
+Column
+Type
+Notes
+id
+uuid, PK, default gen_random_uuid()
+subject_id
+uuid, FK → subjects.id
+not null, ON DELETE CASCADE
+doc_type
+text, not null
+CHECK (doc_type IN ('note','pyq'))
+unit_number
+smallint, nullable
+1–5 when doc_type='note'; NULL
+when doc_type='pyq'; CHECK
+(unit_number BETWEEN 1 AND 5
+OR unit_number IS NULL)
+title
+text, not null
+human-readable display name, e.g.
+'Unit 3 — Neural Networks'
+file_path
+text, not null
+path inside the 'pdfs' storage bucket,
+e.g. 'sem5/AI301/unit3/notes.pdf'
+file_size_bytes
+bigint
+for admin display / size cap
+enforcement
+created_at
+timestamptz, default now()
+drives 'newest first' ordering for PYQs
+Indexes: CREATE INDEX idx_documents_subject ON documents(subject_id); and CREATE
+INDEX idx_documents_subject_type ON documents(subject_id, doc_type,
+unit_number); — covers the Subject Page's main query pattern.
+5. Storage Bucket: pdfs
+●
+One public-read Supabase Storage bucket named pdfs.
+●
+Recommended path convention: sem{semester}/{subject_code}/unit{n}/{filename}.pdf
+for notes, and sem{semester}/{subject_code}/pyq/{filename}.pdf for PYQs — keeps files
+browsable even directly in the Supabase dashboard.
+●
+Public read policy allows anyone to GET a file by path (needed since students never authenticate);
+INSERT/UPDATE/DELETE restricted to the admin claim.
+6. Row Level Security (RLS) Policies
+-- subjects & documents: public read
+CREATE POLICY "Public read subjects" ON subjects
+  FOR SELECT USING (true);
+CREATE POLICY "Public read documents" ON documents
+  FOR SELECT USING (true);
+-- writes require the custom admin claim set in the signed JWT
+CREATE POLICY "Admin write subjects" ON subjects
+  FOR ALL USING (auth.jwt() ->> 'role' = 'admin')
+  WITH CHECK (auth.jwt() ->> 'role' = 'admin');
+
+Backend Schema — AIDS Notes Portal
+AIDS Dept. Notes Portal — BMS College of Engineering
+Confidential — Internal Project Spec
+Page 3
+CREATE POLICY "Admin write documents" ON documents
+  FOR ALL USING (auth.jwt() ->> 'role' = 'admin')
+  WITH CHECK (auth.jwt() ->> 'role' = 'admin');
+-- storage.objects policies for bucket 'pdfs'
+CREATE POLICY "Public read pdfs" ON storage.objects
+  FOR SELECT USING (bucket_id = 'pdfs');
+CREATE POLICY "Admin write pdfs" ON storage.objects
+  FOR INSERT WITH CHECK (bucket_id = 'pdfs' AND auth.jwt() ->> 'role' = 'admin');
+CREATE POLICY "Admin delete pdfs" ON storage.objects
+  FOR DELETE USING (bucket_id = 'pdfs' AND auth.jwt() ->> 'role' = 'admin');
+7. Key API Calls Mapped to Screens
+Screen
+Call
+Semester Dashboard
+select id, name, code from subjects where semester =
+:sem order by name
+Subject Page — Notes
+select * from documents where subject_id = :id and
+doc_type = 'note' order by unit_number
+Subject Page — PYQs
+select * from documents where subject_id = :id and
+doc_type = 'pyq' order by created_at desc
+Admin — Add Subject
+insert into subjects (department_id, semester, name,
+code) values (...)
+Admin — Upload PDF
+storage.upload(path, file) then insert into documents (...)
+Admin — Delete PDF
+storage.remove([path]) then delete from documents
+where id = :id
+8. Data Volume Expectations
+6 semesters × ~6–8 subjects each × (5 units + 1 PYQ list, a handful of PDFs per slot) yields roughly a few
+hundred rows in documents and a similar number of small-to-medium PDF objects in storage — trivially
+small for Postgres and well within Supabase free/pro tier storage limits.
+========================================
+--- doc6_Implementation_Plan.pdf ---
+Implementation Plan — AIDS Notes Portal
+AIDS Dept. Notes Portal — BMS College of Engineering
+Confidential — Internal Project Spec
+Page 1
+DOC 6  —  Implementation Plan
+Phased Build Sequence
+Version 1.0  |  Final companion doc — hand this + Docs 1–5 to the coding agent
+Phase 0 — Project Setup
+1
+Create a new Supabase project; note the project URL and anon key.
+2
+Run the SQL from Doc 5 (Backend Schema) to create departments, subjects, documents; enable
+RLS and apply the policies.
+3
+Insert the single departments row: name = 'Artificial Intelligence and Data Science', college_name =
+'BMS College of Engineering'.
+4
+Create the pdfs storage bucket (public) and apply its policies.
+5
+Deploy the verify-admin Edge Function with the hashed password + JWT signing secret as project
+secrets.
+6
+Scaffold the frontend: Vite + React + Tailwind CSS; install Supabase JS client, React Router, and a
+small UI kit (shadcn/ui or Headless UI) + icon set (lucide-react).
+7
+Set up environment variables per Doc 2 §8 (including the secret admin path).
+Phase 1 — Public Student Experience (core value first)
+1
+Build Home screen: static semester cards 3–8, styled per Doc 4.
+2
+Build Semester Dashboard: fetch + render subject cards for the selected semester; empty-state
+handling.
+3
+Build Subject Page: fetch documents for the subject, split into Notes (grouped by unit_number 1–5) and
+PYQs (sorted newest first); implement UnitAccordion, PDFRow, View/Download actions.
+4
+Wire up breadcrumb navigation and React Router routes exactly as in Doc 3 §5.
+5
+Test on mobile viewport widths first (majority of student traffic), then tablet/desktop.
+Phase 2 — Admin Panel
+1
+Build Admin Login screen at the secret path; wire the password form to the verify-admin Edge
+Function; store the returned session token in memory (and a secure cookie if applicable).
+2
+Build Admin Dashboard: semester filter, subject list, '+ Add Subject' inline form (insert into subjects).
+3
+Build Manage Subject screen: 5 unit upload blocks + 1 PYQ upload block, each using
+AdminUploadZone (Doc 4 §4); wire uploads to Supabase Storage + insert into documents; wire delete
+(storage.remove + delete row) with a confirmation modal.
+4
+Add rename/delete-subject actions with confirmation prompts.
+5
+Add toast notifications for every write action's success/failure.
+6
+Verify RLS actually blocks writes without a valid admin token (test with the anon/public key directly).
+Phase 3 — Polish, Validation & Edge Cases
+1
+Client + server-side PDF-only validation and file-size cap enforcement on every upload path.
+2
+Empty states for: semester with no subjects, unit with no files, PYQ list with no files.
+
+Implementation Plan — AIDS Notes Portal
+AIDS Dept. Notes Portal — BMS College of Engineering
+Confidential — Internal Project Spec
+Page 2
+3
+Loading skeletons/spinners for all data-fetching screens so slow connections don't show blank pages.
+4
+Accessibility pass: focus rings, aria-labels on View/Download, colour-contrast check per Doc 4 §9.
+5
+Add a noindex meta tag and exclude the admin path from any sitemap/robots configuration.
+6
+Basic rate-limiting/backoff on the admin password endpoint.
+Phase 4 — Performance & Scale Verification
+1
+Add client-side caching (React Query or SWR) for semester/subject list fetches to cut redundant
+network calls during a session.
+2
+Confirm PDFs are served directly from Supabase Storage's public URL (not proxied through the app),
+so bandwidth scales independently of the frontend server.
+3
+Load-test with a simple concurrent-request script (e.g. k6 or Artillery) simulating a few hundred
+simultaneous Subject Page loads; confirm response times stay acceptable.
+4
+Enable and verify Vercel/Netlify CDN caching for static assets (JS/CSS bundles, favicon, etc.).
+Phase 5 — Content Seeding & Launch
+1
+Admin logs into the panel and adds the real subject list for Semesters 3–8 (subjects are supplied by the
+department, not hard-coded by the coding agent).
+2
+Upload initial notes/PYQs for at least one live subject to validate the full pipeline end-to-end.
+3
+Share the public URL with students; keep the admin path/password private and unshared.
+4
+Monitor Supabase logs/dashboard usage metrics during the first high-traffic period (e.g. first exam
+week) and adjust storage/DB plan tier if needed.
+Definition of Done (v1)
+●
+A student can go Home → pick a semester → pick a subject → view/download any uploaded note or
+PYQ, with zero login, on both mobile and desktop.
+●
+The admin can, from the hidden panel, add a new subject and upload/replace/delete PDFs for any unit
+or the PYQ list, with no code changes.
+●
+RLS prevents any public/anon write to subjects, documents, or the storage bucket.
+●
+The site remains responsive under simulated load of several hundred concurrent read requests.
+●
+UI matches the white-dominant, blue-accented look defined in Doc 4.
+========================================

@@ -1,7 +1,5 @@
-import { useState } from "react";
-import { FileText, Download, Eye } from "lucide-react";
+import { FileText, Download, ExternalLink } from "lucide-react";
 import { supabase } from "../lib/supabase";
-import PDFViewerModal from "./PDFViewerModal";
 
 interface Props {
   id: string;
@@ -12,10 +10,6 @@ interface Props {
 }
 
 export default function PDFRow({ title, filePath }: Props) {
-  const [isPreviewOpen, setIsPreviewOpen] = useState(false);
-  
-
-
   const getUrl = () => {
     const { data } = supabase.storage.from("pdfs").getPublicUrl(filePath);
     return data.publicUrl;
@@ -48,14 +42,16 @@ export default function PDFRow({ title, filePath }: Props) {
         </div>
       </div>
       <div className="flex items-center gap-2 sm:ml-4 flex-shrink-0">
-        <button
-          onClick={() => setIsPreviewOpen(true)}
+        <a
+          href={getUrl()}
+          target="_blank"
+          rel="noopener noreferrer"
           className="inline-flex items-center justify-center text-sm font-bold border border-border-color/50 text-text-main bg-card hover:bg-inverse hover:text-body rounded-full px-5 py-2 transition-all shadow-sm"
-          aria-label={`Preview ${title}`}
+          aria-label={`Open ${title} in new tab`}
         >
-          <Eye className="w-4 h-4 mr-2" />
-          Preview
-        </button>
+          <ExternalLink className="w-4 h-4 mr-2" />
+          Open
+        </a>
         <button
           onClick={handleDownload}
           className="inline-flex items-center justify-center text-sm font-bold bg-inverse text-body hover:bg-inverse/80 hover:shadow-dribbble hover:-translate-y-0.5 rounded-full px-5 py-2 transition-all shadow-sm"
@@ -65,13 +61,6 @@ export default function PDFRow({ title, filePath }: Props) {
           Download
         </button>
       </div>
-
-      <PDFViewerModal
-        isOpen={isPreviewOpen}
-        onClose={() => setIsPreviewOpen(false)}
-        pdfUrl={getUrl()}
-        title={title}
-      />
     </div>
   );
 }

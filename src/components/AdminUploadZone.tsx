@@ -26,11 +26,6 @@ export default function AdminUploadZone({ subjectId, subjectCode, semester, docT
       setError("Only PDF files are allowed.");
       return;
     }
-    
-    if (!customTitle.trim()) {
-      setError("Please enter a display name first.");
-      return;
-    }
 
     if (file.size > 50 * 1024 * 1024) {
       setError("File exceeds 50MB limit.");
@@ -58,7 +53,7 @@ export default function AdminUploadZone({ subjectId, subjectCode, semester, docT
         subject_id: subjectId,
         doc_type: docType,
         unit_number: unitNumber,
-        title: customTitle.trim(),
+        title: customTitle.trim() || file.name,
         file_path: filePath,
         file_size_bytes: file.size
       });
@@ -130,7 +125,7 @@ export default function AdminUploadZone({ subjectId, subjectCode, semester, docT
       ) : (
         <div>
           <div className="mb-4">
-            <label className="block text-xs font-bold text-text-muted uppercase tracking-wider mb-2">Display Name *</label>
+            <label className="block text-xs font-bold text-text-muted uppercase tracking-wider mb-2">Display Name</label>
             <input 
               type="text" 
               value={customTitle}

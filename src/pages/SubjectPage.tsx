@@ -50,10 +50,10 @@ export default function SubjectPage() {
 
   return (
     <div className="animate-fade-in">
-      <div className="mb-12 bg-card p-8 sm:p-10 rounded-[32px] border border-border-color/50 shadow-sm relative overflow-hidden transition-colors duration-300">
-        <div className="absolute top-0 right-0 w-48 h-48 bg-gradient-to-br from-accent to-transparent rounded-bl-full -mr-16 -mt-16 opacity-60" />
+      <div className="mb-8 bg-card p-6 sm:p-8 rounded-[24px] border border-border-color/50 shadow-sm relative overflow-hidden transition-colors duration-300">
+        <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-accent to-transparent rounded-bl-full -mr-12 -mt-12 opacity-60" />
         <div className="relative z-10">
-          <h2 className="text-3xl sm:text-5xl font-extrabold text-text-main tracking-tight leading-tight">
+          <h2 className="text-2xl sm:text-4xl font-extrabold text-text-main tracking-tight leading-tight">
             {subject.name}
           </h2>
           {subject.code && (

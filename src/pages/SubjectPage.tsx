@@ -46,7 +46,17 @@ export default function SubjectPage() {
   }
 
   const notes = documents.filter(d => d.doc_type === "note");
-  const pyqs = documents.filter(d => d.doc_type === "pyq");
+  const pyqs = documents
+    .filter(d => d.doc_type === "pyq")
+    .sort((a, b) => {
+      const aTitle = a.title.trim().toUpperCase();
+      const bTitle = b.title.trim().toUpperCase();
+      
+      if (aTitle.startsWith('CIE') && bTitle.startsWith('SEE')) return -1;
+      if (aTitle.startsWith('SEE') && bTitle.startsWith('CIE')) return 1;
+      
+      return aTitle.localeCompare(bTitle, undefined, { numeric: true });
+    });
 
   return (
     <div className="animate-fade-in">
@@ -72,7 +82,9 @@ export default function SubjectPage() {
           
           <div className="space-y-2">
             {[1, 2, 3, 4, 5].map(unitNum => {
-              const unitNotes = notes.filter(n => n.unit_number === unitNum);
+              const unitNotes = notes
+                .filter(n => n.unit_number === unitNum)
+                .sort((a, b) => a.title.localeCompare(b.title, undefined, { numeric: true }));
               return (
                 <UnitAccordion key={unitNum} unitNumber={unitNum} count={unitNotes.length} defaultOpen={unitNum === 1 && unitNotes.length > 0}>
                   {unitNotes.length > 0 ? (

@@ -55,7 +55,7 @@ export default function Layout() {
         <div className="space-y-1 mb-4 pb-4 border-b border-border-color">
           <div className="flex items-center justify-between px-3 py-2.5 rounded-lg">
             <div className="flex flex-col">
-              <span className="text-[10px] font-bold text-text-muted uppercase tracking-wider mb-0.5">Developed by</span>
+              <span className="text-[10px] font-bold text-text-muted uppercase tracking-wider mb-0.5">For any queries, contact</span>
               <span className="text-[13px] font-semibold text-text-main">Vedant Vishambhari</span>
             </div>
             <a

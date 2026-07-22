@@ -36,4 +36,4 @@ A centralized, premium academic portal for students of the Artificial Intelligen
    ```
 
 ---
-*Developed by Vedant Vishambhari*
+*For any queries, contact Vedant Vishambhari*

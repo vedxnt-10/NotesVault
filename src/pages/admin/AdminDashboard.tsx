@@ -15,7 +15,7 @@ interface Subject {
 export default function AdminDashboard() {
   const navigate = useNavigate();
   const [subjects, setSubjects] = useState<Subject[]>([]);
-  const [activeSem, setActiveSem] = useState(1);
+  const [activeSem, setActiveSem] = useState(3);
   const [loading, setLoading] = useState(true);
   const [visitorCount, setVisitorCount] = useState<number | null>(null);
   
@@ -132,7 +132,7 @@ export default function AdminDashboard() {
       </div>
 
       <div className="flex gap-2 overflow-x-auto pb-4 mb-6 hide-scrollbar">
-        {[1, 2, 3, 4, 5, 6, 7, 8].map(sem => (
+        {[3, 4, 5, 6, 7, 8].map(sem => (
           <button
             key={sem}
             onClick={() => setActiveSem(sem)}

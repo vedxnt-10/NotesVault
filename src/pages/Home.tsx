@@ -7,9 +7,10 @@ export default function Home() {
     const trackVisit = async () => {
       const hasVisited = sessionStorage.getItem("hasVisited");
       if (!hasVisited) {
+        sessionStorage.setItem("hasVisited", "true");
         const { error } = await supabase.rpc("increment_visitor_count");
-        if (!error) {
-          sessionStorage.setItem("hasVisited", "true");
+        if (error) {
+          sessionStorage.removeItem("hasVisited");
         }
       }
     };

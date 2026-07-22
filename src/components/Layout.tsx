@@ -9,8 +9,7 @@ const ADMIN_PATH = import.meta.env.VITE_ADMIN_PATH || "admin-fallback-123"
 export default function Layout() {
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const location = useLocation()
-
-  const semesters = [1, 2, 3, 4, 5, 6, 7, 8]
+  const semesters = [3, 4, 5, 6, 7, 8]
 
   const SidebarContent = () => (
     <div className="h-full flex flex-col bg-accent w-72 overflow-y-auto hide-scrollbar">
